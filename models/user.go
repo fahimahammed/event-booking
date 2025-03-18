@@ -27,7 +27,6 @@ func (u User) Save() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Hash Pass: ", hashedPassword)
 
 	result, err := stmt.Exec(u.Email, hashedPassword)
 	if err != nil {
@@ -42,12 +41,12 @@ func (u User) Save() error {
 }
 
 func (u User) Login() error {
-	query := "SELECT password FROM users WHERE email = ?"
+	query := "SELECT id, password FROM users WHERE email = ?"
 	row := db.DB.QueryRow(query, u.Email)
 
 	var retrivedPassword string
 
-	err := row.Scan(&retrivedPassword)
+	err := row.Scan(&u.ID, &retrivedPassword)
 
 	if err != nil {
 		return err

@@ -2,6 +2,8 @@ package routes
 
 import (
 	"event-booking/models"
+	"event-booking/utils"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,5 +35,12 @@ func login(context *gin.Context) {
 		return
 	}
 
-	context.JSON(200, gin.H{"message": "Login successful"})
+	token, err := utils.GenerateJWT(user.Email, user.ID)
+	fmt.Println("Error: ", err)
+	if err != nil {
+		context.JSON(500, gin.H{"message": "Internal server error", "error": err})
+		return
+	}
+
+	context.JSON(200, gin.H{"message": "Login successful", "token": token})
 }
