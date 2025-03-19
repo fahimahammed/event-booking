@@ -63,4 +63,20 @@ func createTables() {
 	}
 
 	log.Println("Database tables initialized successfully")
+
+	createRegistrationsTable := `
+	CREATE TABLE IF NOT EXISTS registrations(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	event_id INTEGER NOT NULL,
+	user_id INTEGER NOT NULL,
+	FOREIGN KEY (event_id) REFERENCES events(id),
+	FOREIGN KEY (user_id) REFERENCES users
+	)
+	`
+
+	_, err = DB.Exec(createRegistrationsTable)
+	if err != nil {
+		log.Fatalf("Error creating registrations table: %v", err)
+	}
+	log.Println("Registrations table created successfully")
 }
