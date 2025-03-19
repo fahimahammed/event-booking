@@ -40,9 +40,11 @@ func (u User) Save() error {
 	return nil
 }
 
-func (u User) Login() error {
+func (u *User) Login() error {
 	query := "SELECT id, password FROM users WHERE email = ?"
 	row := db.DB.QueryRow(query, u.Email)
+
+	fmt.Println(row)
 
 	var retrivedPassword string
 

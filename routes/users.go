@@ -17,7 +17,7 @@ func signup(context *gin.Context) {
 	}
 	user.ID = 1
 	user.Save()
-	context.JSON(201, gin.H{"message": "User created successfully", "user": user})
+	context.JSON(201, gin.H{"message": "User created successfully"})
 }
 
 func login(context *gin.Context) {
