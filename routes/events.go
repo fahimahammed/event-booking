@@ -2,7 +2,6 @@ package routes
 
 import (
 	"event-booking/models"
-	"event-booking/utils"
 	"net/http"
 	"strconv"
 
@@ -33,26 +32,16 @@ func getEvent(context *gin.Context) {
 }
 
 func createEvent(context *gin.Context) {
-	token := context.Request.Header.Get("Authorization")
-
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Token is missing"})
-		return
-	}
-
-	userId, err := utils.VerifyToken(token)
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized", "message": "Invalid token"})
-		return
-	}
 
 	var event models.Event
-	err = context.ShouldBindJSON(&event)
+	err := context.ShouldBindJSON(&event)
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": "Invalid request body"})
 		return
 	}
+
+	userId := context.GetInt64("userId")
 
 	event.UserID = int64(userId)
 	event.Save()
@@ -66,9 +55,14 @@ func updateEvent(context *gin.Context) {
 		return
 	}
 
-	_, err = models.GetEventById(eventId)
+	event, err := models.GetEventById(eventId)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "message": "Event not found"})
+		return
+	}
+	userId := context.GetInt64("userId")
+	if event.UserID != userId {
+		context.JSON(http.StatusForbidden, gin.H{"message": "You are not authorized to update this event"})
 		return
 	}
 	var updatedEvent models.Event
@@ -97,6 +91,12 @@ func deleteEvent(context *gin.Context) {
 	event, err := models.GetEventById(eventId)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": err.Error(), "message": "Event not found"})
+	}
+
+	userId := context.GetInt64("userId")
+	if event.UserID != userId {
+		context.JSON(http.StatusForbidden, gin.H{"message": "You are not authorized to delete this event"})
+		return
 	}
 
 	err = event.DeleteEvent()

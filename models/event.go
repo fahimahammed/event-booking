@@ -14,7 +14,7 @@ type Event struct {
 	UserID      int64
 }
 
-var events []Event = []Event{}
+// var events []Event = []Event{}
 
 func (e *Event) Save() error {
 	// TODO: Save event to database
